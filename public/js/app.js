@@ -371,6 +371,9 @@ function handleTeamSelect(matchId, selectedTeam) {
   }
   
   renderBracket();
+  
+  // Auto-advance mobile tab when round is fully predicted
+  checkAndAdvanceMobileRound(struct.round);
 }
 
 function clearDownstreamPicks(matchId, replacedTeam) {
@@ -530,12 +533,26 @@ function renderRoundsColumn(matchesList, containerId) {
 }
 
 // Mobile Active Round Selection
-function setMobileRound(roundName) {
+function setMobileRound(roundName, btnElement) {
   // Update tabs active state
   document.querySelectorAll('.mobile-tab-btn').forEach(btn => {
     btn.classList.remove('active');
   });
-  event.target.classList.add('active');
+  
+  let activeBtn = btnElement;
+  if (!activeBtn) {
+    // Find the button dynamically based on roundName parameter
+    document.querySelectorAll('.mobile-tab-btn').forEach(btn => {
+      const onclickAttr = btn.getAttribute('onclick');
+      if (onclickAttr && onclickAttr.includes(`'${roundName}'`)) {
+        activeBtn = btn;
+      }
+    });
+  }
+
+  if (activeBtn) {
+    activeBtn.classList.add('active');
+  }
 
   // Hide all rounds in both sides, show only selected
   document.querySelectorAll('.bracket-round').forEach(el => {
@@ -550,6 +567,41 @@ function setMobileRound(roundName) {
   centerCol.classList.remove('active-round');
   if (roundName === 'finals') {
     centerCol.classList.add('active-round');
+  }
+
+  // Smooth scroll to top of viewport for easy viewing
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Auto-advance mobile tab when all selections for the current round are completed
+function checkAndAdvanceMobileRound(currentRound) {
+  if (window.innerWidth > 768) return; // Only apply on mobile viewports
+
+  let isComplete = false;
+  let nextRoundName = "";
+
+  if (currentRound === "r32") {
+    const r32Matches = ["73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88"];
+    isComplete = r32Matches.every(id => predictions[id]);
+    nextRoundName = "r16";
+  } else if (currentRound === "r16") {
+    const r16Matches = ["89", "90", "91", "92", "93", "94", "95", "96"];
+    isComplete = r16Matches.every(id => predictions[id]);
+    nextRoundName = "qf";
+  } else if (currentRound === "qf") {
+    const qfMatches = ["97", "98", "99", "100"];
+    isComplete = qfMatches.every(id => predictions[id]);
+    nextRoundName = "sf";
+  } else if (currentRound === "sf") {
+    const sfMatches = ["101", "102"];
+    isComplete = sfMatches.every(id => predictions[id]);
+    nextRoundName = "finals";
+  }
+
+  if (isComplete && nextRoundName) {
+    setTimeout(() => {
+      setMobileRound(nextRoundName);
+    }, 350); // Small delay to let user see selection flash before transition
   }
 }
 
