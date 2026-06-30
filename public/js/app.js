@@ -575,6 +575,17 @@ function setMobileRound(roundName, btnElement) {
 
 // Auto-advance mobile tab when all selections for the current round are completed
 function checkAndAdvanceMobileRound(currentRound) {
+  // Check if the entire bracket is complete (all 32 matches are predicted)
+  const allMatchIds = Array.from({ length: 32 }, (_, i) => (73 + i).toString());
+  const isEntireBracketComplete = allMatchIds.every(id => predictions[id]);
+
+  if (isEntireBracketComplete) {
+    setTimeout(() => {
+      openSubmitModal();
+    }, 450); // Trigger saving modal immediately once finished
+    return;
+  }
+
   if (window.innerWidth > 768) return; // Only apply on mobile viewports
 
   let isComplete = false;
