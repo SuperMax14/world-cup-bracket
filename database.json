@@ -1,0 +1,184 @@
+{
+  "settings": {
+    "adminPassword": "admin",
+    "pointsSystem": {
+      "r32": 10,
+      "r16": 20,
+      "qf": 40,
+      "sf": 80,
+      "third": 50,
+      "final": 160
+    }
+  },
+  "officialResults": {
+    "73": {
+      "winner": "Canada",
+      "score": "Canada won (June 28)"
+    },
+    "74": {
+      "winner": "Paraguay",
+      "score": "Paraguay won (pens, June 29)"
+    },
+    "75": {
+      "winner": null,
+      "score": ""
+    },
+    "76": {
+      "winner": "Brazil",
+      "score": "2-1 (June 29)"
+    },
+    "77": {
+      "winner": null,
+      "score": ""
+    },
+    "78": {
+      "winner": null,
+      "score": ""
+    },
+    "79": {
+      "winner": null,
+      "score": ""
+    },
+    "80": {
+      "winner": null,
+      "score": ""
+    },
+    "81": {
+      "winner": null,
+      "score": ""
+    },
+    "82": {
+      "winner": null,
+      "score": ""
+    },
+    "83": {
+      "winner": null,
+      "score": ""
+    },
+    "84": {
+      "winner": null,
+      "score": ""
+    },
+    "85": {
+      "winner": null,
+      "score": ""
+    },
+    "86": {
+      "winner": null,
+      "score": ""
+    },
+    "87": {
+      "winner": null,
+      "score": ""
+    },
+    "88": {
+      "winner": null,
+      "score": ""
+    },
+    "89": {
+      "winner": null,
+      "score": ""
+    },
+    "90": {
+      "winner": null,
+      "score": ""
+    },
+    "91": {
+      "winner": null,
+      "score": ""
+    },
+    "92": {
+      "winner": null,
+      "score": ""
+    },
+    "93": {
+      "winner": null,
+      "score": ""
+    },
+    "94": {
+      "winner": null,
+      "score": ""
+    },
+    "95": {
+      "winner": null,
+      "score": ""
+    },
+    "96": {
+      "winner": null,
+      "score": ""
+    },
+    "97": {
+      "winner": null,
+      "score": ""
+    },
+    "98": {
+      "winner": null,
+      "score": ""
+    },
+    "99": {
+      "winner": null,
+      "score": ""
+    },
+    "100": {
+      "winner": null,
+      "score": ""
+    },
+    "101": {
+      "winner": null,
+      "score": ""
+    },
+    "102": {
+      "winner": null,
+      "score": ""
+    },
+    "103": {
+      "winner": null,
+      "score": ""
+    },
+    "104": {
+      "winner": null,
+      "score": ""
+    }
+  },
+  "users": [
+    {
+      "username": "Max",
+      "predictions": {
+        "73": "Canada",
+        "74": "Paraguay",
+        "75": "Netherlands",
+        "76": "Brazil",
+        "77": "France",
+        "78": "Côte d'Ivoire",
+        "79": "Mexico",
+        "80": "England",
+        "81": "USA",
+        "82": "Senegal",
+        "83": "Portugal",
+        "84": "Spain",
+        "85": "Switzerland",
+        "86": "Argentina",
+        "87": "Ghana",
+        "88": "Egypt",
+        "89": "Morocco",
+        "90": "France",
+        "91": "Brazil",
+        "92": "Mexico",
+        "93": "Portugal",
+        "94": "USA",
+        "95": "Ghana",
+        "96": "Argentina",
+        "97": "France",
+        "98": "Portugal",
+        "99": "Brazil",
+        "100": "Argentina",
+        "101": "France",
+        "102": "Brazil",
+        "103": "Argentina",
+        "104": "France"
+      },
+      "score": 40,
+      "submittedAt": "2026-06-30T00:19:29.139Z"
+    }
+  ]
+}

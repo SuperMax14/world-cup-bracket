@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - FWC 2026 Bracket</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Admin specific adjustments */
+    .admin-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .admin-nav {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 16px;
+    }
+    .admin-card {
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .match-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: rgba(0,0,0,0.2);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin-bottom: 12px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .match-info-admin {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 120px;
+    }
+    .match-num {
+      font-weight: 700;
+      color: var(--accent-secondary);
+      font-size: 0.95rem;
+    }
+    .match-date-admin {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .match-teams-admin {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex: 1;
+      justify-content: center;
+      font-size: 1rem;
+    }
+    .admin-team-select {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: center;
+    }
+    .admin-team-select select {
+      background: rgba(0, 0, 0, 0.4);
+      color: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      width: 200px;
+    }
+    .admin-team-select select:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+    }
+    .score-input-admin {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .score-input-admin input {
+      background: rgba(0, 0, 0, 0.4);
+      color: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      width: 180px;
+    }
+    .save-btn-admin {
+      background: var(--success);
+      color: #fff;
+      border: none;
+      font-size: 0.85rem;
+      padding: 10px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: opacity 0.2s;
+    }
+    .save-btn-admin:hover {
+      opacity: 0.9;
+    }
+    .login-box {
+      max-width: 400px;
+      margin: 100px auto;
+      padding: 32px;
+      text-align: center;
+    }
+    .login-box h2 {
+      font-family: var(--font-display);
+      margin-bottom: 20px;
+    }
+    .user-action-btn {
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      border-radius: 4px;
+      cursor: pointer;
+      border: none;
+      font-weight: bold;
+      transition: opacity 0.2s;
+    }
+    .btn-kick {
+      background: var(--danger);
+      color: #fff;
+    }
+    .btn-edit {
+      background: var(--accent-primary);
+      color: #fff;
+      margin-right: 6px;
+    }
+    .user-action-btn:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background decorations -->
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="header-container">
+      <div class="logo">
+        <img src="images/logo.png" alt="FIFA World Cup 2026 Logo" style="height: 48px; width: auto; object-fit: contain;">
+        <div class="logo-text">
+          <h1>FWC 2026</h1>
+          <p>Admin Portal</p>
+        </div>
+      </div>
+      <nav>
+        <a href="index.html" class="nav-btn">Back to Standings</a>
+        <button id="btn-logout" class="nav-btn hidden" onclick="logoutAdmin()">Logout</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Login view -->
+  <div id="admin-login-view" class="login-box glass-panel">
+    <h2>Admin Authorization</h2>
+    <div class="form-group" style="text-align: left; margin-bottom: 16px;">
+      <label for="admin-password">Enter Admin Password</label>
+      <input type="password" id="admin-password" placeholder="Password (default is admin)">
+    </div>
+    <div id="login-error" class="error-msg hidden" style="margin-bottom: 16px;"></div>
+    <button class="btn btn-primary" style="width: 100%;" onclick="loginAdmin()">Login</button>
+  </div>
+
+  <!-- Dashboard view -->
+  <main class="main-content admin-container hidden" id="admin-dashboard-view">
+    
+    <div class="admin-nav">
+      <button class="nav-btn active" id="tab-results" onclick="switchAdminTab('results')">Update Match Results</button>
+      <button class="nav-btn" id="tab-users" onclick="switchAdminTab('users')">Manage Users</button>
+      <button class="nav-btn" id="tab-settings" onclick="switchAdminTab('settings')">Settings</button>
+    </div>
+
+    <!-- UPDATE RESULTS TAB -->
+    <div id="admin-tab-content-results" class="admin-tab-content">
+      <div class="glass-panel admin-card">
+        <h2>Enter Match Results</h2>
+        <p class="panel-subtitle" style="margin-bottom: 20px;">
+          Select the winner and enter the score for each match. User scores will be recalculated and updated on the leaderboard automatically.
+        </p>
+
+        <!-- Round filters -->
+        <div class="mobile-round-tabs" style="display: flex; margin-bottom: 20px;">
+          <button class="mobile-tab-btn active" id="filter-r32" onclick="filterAdminMatches('r32')">R32</button>
+          <button class="mobile-tab-btn" id="filter-r16" onclick="filterAdminMatches('r16')">R16</button>
+          <button class="mobile-tab-btn" id="filter-qf" onclick="filterAdminMatches('qf')">QF</button>
+          <button class="mobile-tab-btn" id="filter-sf" onclick="filterAdminMatches('sf')">SF</button>
+          <button class="mobile-tab-btn" id="filter-finals" onclick="filterAdminMatches('finals')">Finals</button>
+        </div>
+
+        <div id="admin-matches-list">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- MANAGE USERS TAB -->
+    <div id="admin-tab-content-users" class="admin-tab-content hidden">
+      <div class="glass-panel admin-card">
+        <h2>Registered Prediction Brackets</h2>
+        <p class="panel-subtitle" style="margin-bottom: 20px;">View and manage the user prediction submissions.</p>
+        
+        <div class="table-container">
+          <table class="leaderboard-table" style="cursor: default;">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th style="text-align: right;">Points</th>
+                <th style="text-align: right; width: 300px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-users-table-body">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS TAB -->
+    <div id="admin-tab-content-settings" class="admin-tab-content hidden">
+      <div class="glass-panel admin-card" style="max-width: 500px; margin: 0 auto;">
+        <h2>Change Admin Password</h2>
+        <p class="panel-subtitle" style="margin-bottom: 16px;">Configure your credentials.</p>
+        
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label for="change-pass-input">New Password</label>
+          <input type="password" id="change-pass-input" placeholder="New Password">
+        </div>
+        <div id="settings-success" style="color: var(--success); margin-bottom: 16px; font-size: 0.9rem;" class="hidden"></div>
+        <div id="settings-error" class="error-msg hidden" style="margin-bottom: 16px;"></div>
+        <button class="btn btn-primary" onclick="changeAdminPassword()">Update Password</button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ADMIN USER EDIT PREDICTIONS MODAL -->
+  <div class="modal" id="admin-edit-user-modal">
+    <div class="modal-content glass-panel" style="max-width: 600px; max-height: 85vh; overflow-y: auto;">
+      <h3 id="edit-user-modal-title">Edit User Predictions</h3>
+      <p class="panel-subtitle" style="margin-bottom: 12px;">Modify predictions manually for this user.</p>
+      
+      <div id="admin-edit-matches-container">
+        <!-- Dynamically filled with match prediction overrides -->
+      </div>
+
+      <div id="edit-user-error" class="error-msg hidden" style="margin-top: 10px;"></div>
+
+      <div class="modal-actions" style="margin-top: 20px;">
+        <button class="btn btn-secondary" onclick="closeAdminEditModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="submitAdminUserEdit()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2026 FIFA World Cup Bracket Challenge. Admin Control Room.</p>
+  </footer>
+
+  <!-- Admin JS Script -->
+  <script src="js/admin.js"></script>
+</body>
+</html>

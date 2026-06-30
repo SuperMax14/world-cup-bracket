@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2026 FIFA World Cup Bracket Predictor</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Background decorations -->
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="header-container">
+      <div class="logo">
+        <img src="images/logo.png" alt="FIFA World Cup 2026 Logo" style="height: 48px; width: auto; object-fit: contain;">
+        <div class="logo-text">
+          <h1>FWC 2026</h1>
+          <p>Bracket Predictor</p>
+        </div>
+      </div>
+      <nav>
+        <button id="nav-leaderboard" class="nav-btn active" onclick="switchView('leaderboard')">Leaderboard</button>
+        <button id="nav-bracket" class="nav-btn" onclick="switchView('bracket')">Predictor</button>
+        <button id="nav-rules" class="nav-btn" onclick="switchView('rules')">Rules</button>
+        <a href="admin.html" class="nav-btn admin-link">Admin</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-content">
+    
+    <!-- LEADERBOARD VIEW -->
+    <section id="view-leaderboard" class="view-section active">
+      <div class="glass-panel">
+        <div class="panel-header">
+          <h2>Standings Leaderboard</h2>
+          <p class="panel-subtitle">See how everyone ranks based on correct predictions. Click a user to view their full bracket!</p>
+          <div class="search-bar">
+            <input type="text" id="search-user" placeholder="🔍 Search nickname..." oninput="filterLeaderboard()">
+          </div>
+        </div>
+        <div class="table-container">
+          <table class="leaderboard-table">
+            <thead>
+              <tr>
+                <th style="width: 80px;">Rank</th>
+                <th>Nickname</th>
+                <th style="width: 150px; text-align: right;">Points</th>
+                <th style="width: 200px; text-align: right;">Submitted At</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboard-body">
+              <!-- Dynamically populated -->
+              <tr>
+                <td colspan="4" class="table-loading">Loading standings...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- BRACKET VIEW -->
+    <section id="view-bracket" class="view-section">
+      <div class="bracket-controls">
+        <div class="bracket-status-card glass-panel">
+          <div class="status-info">
+            <h2 id="bracket-view-title">Build Your Bracket</h2>
+            <p id="bracket-view-desc">Select predictions by clicking on the teams. Fill out the entire tree to submit!</p>
+          </div>
+          <div class="status-actions">
+            <button id="btn-submit-bracket" class="btn btn-primary" onclick="openSubmitModal()">Save Prediction</button>
+            <button id="btn-reset-bracket" class="btn btn-secondary" onclick="resetBracket()">Reset Predictions</button>
+            <button id="btn-back-to-build" class="btn btn-accent hidden" onclick="loadBuildMode()">Create My Bracket</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Round Tabs Selector -->
+      <div class="mobile-round-tabs">
+        <button class="mobile-tab-btn active" onclick="setMobileRound('r32')">R32</button>
+        <button class="mobile-tab-btn" onclick="setMobileRound('r16')">R16</button>
+        <button class="mobile-tab-btn" onclick="setMobileRound('qf')">QF</button>
+        <button class="mobile-tab-btn" onclick="setMobileRound('sf')">SF</button>
+        <button class="mobile-tab-btn" onclick="setMobileRound('finals')">Finals</button>
+      </div>
+
+      <!-- Symmetrical Bracket Layout Container -->
+      <div class="bracket-container" id="bracket-layout">
+        
+        <!-- LEFT HALF: R32, R16, QF, SF -->
+        <div class="bracket-side left-side">
+          <!-- Round of 32 (8 matches) -->
+          <div class="bracket-round round-r32" data-round="r32">
+            <h3>Round of 32</h3>
+            <div class="matches-list" id="left-r32-matches"></div>
+          </div>
+          <!-- Round of 16 (4 matches) -->
+          <div class="bracket-round round-r16" data-round="r16">
+            <h3>Round of 16</h3>
+            <div class="matches-list" id="left-r16-matches"></div>
+          </div>
+          <!-- Quarterfinals (2 matches) -->
+          <div class="bracket-round round-qf" data-round="qf">
+            <h3>Quarter-Finals</h3>
+            <div class="matches-list" id="left-qf-matches"></div>
+          </div>
+          <!-- Semifinals (1 match) -->
+          <div class="bracket-round round-sf" data-round="sf">
+            <h3>Semi-Finals</h3>
+            <div class="matches-list" id="left-sf-matches"></div>
+          </div>
+        </div>
+
+        <!-- CENTER: FINALS & THIRD PLACE -->
+        <div class="bracket-center">
+          <div class="center-round">
+            <h3>Third Place Playoff</h3>
+            <div class="match-card center-match" id="match-103"></div>
+          </div>
+
+          <div class="center-trophy">
+            <img src="images/logo.png" alt="FIFA World Cup 2026 Logo" style="height: 140px; width: auto; object-fit: contain; margin-bottom: 8px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));">
+            <div class="predicted-champion" id="predicted-champion-container">
+              <span class="champion-label">PREDICTED CHAMPION</span>
+              <div class="champion-team" id="champion-display">
+                <span class="champion-placeholder">Select bracket to crown champion</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="center-round">
+            <h3>FIFA World Cup Final</h3>
+            <div class="match-card center-match" id="match-104"></div>
+          </div>
+        </div>
+
+        <!-- RIGHT HALF: SF, QF, R16, R32 -->
+        <div class="bracket-side right-side">
+          <!-- Semifinals (1 match) -->
+          <div class="bracket-round round-sf" data-round="sf">
+            <h3>Semi-Finals</h3>
+            <div class="matches-list" id="right-sf-matches"></div>
+          </div>
+          <!-- Quarterfinals (2 matches) -->
+          <div class="bracket-round round-qf" data-round="qf">
+            <h3>Quarter-Finals</h3>
+            <div class="matches-list" id="right-qf-matches"></div>
+          </div>
+          <!-- Round of 16 (4 matches) -->
+          <div class="bracket-round round-r16" data-round="r16">
+            <h3>Round of 16</h3>
+            <div class="matches-list" id="right-r16-matches"></div>
+          </div>
+          <!-- Round of 32 (8 matches) -->
+          <div class="bracket-round round-r32" data-round="r32">
+            <h3>Round of 32</h3>
+            <div class="matches-list" id="right-r32-matches"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- RULES VIEW -->
+    <section id="view-rules" class="view-section">
+      <div class="glass-panel text-content">
+        <h2>Rules & Points Scoring</h2>
+        <p class="intro">Submit predictions for the entire knockout bracket before the matches kick off. You earn points for each match where you correctly predict the advancing team.</p>
+        
+        <div class="points-grid">
+          <div class="points-card">
+            <span class="pts-val">+10</span>
+            <span class="pts-lbl">Round of 32</span>
+          </div>
+          <div class="points-card">
+            <span class="pts-val">+20</span>
+            <span class="pts-lbl">Round of 16</span>
+          </div>
+          <div class="points-card">
+            <span class="pts-val">+40</span>
+            <span class="pts-lbl">Quarter-Finals</span>
+          </div>
+          <div class="points-card">
+            <span class="pts-val">+80</span>
+            <span class="pts-lbl">Semi-Finals</span>
+          </div>
+          <div class="points-card">
+            <span class="pts-val">+50</span>
+            <span class="pts-lbl">3rd Place Match</span>
+          </div>
+          <div class="points-card animate-pulse">
+            <span class="pts-val">+160</span>
+            <span class="pts-lbl">World Cup Final</span>
+          </div>
+        </div>
+
+        <div class="rules-details">
+          <h3>Important Details</h3>
+          <ul>
+            <li><strong>Completed Matches:</strong> Matches that have already finished (e.g. Canada vs South Africa) are automatically locked in with their real-world winners.</li>
+            <li><strong>Nicknames:</strong> Brackets are built using nicknames. No complex accounts required! Just pick a unique name, submit, and share your personalized link.</li>
+            <li><strong>Leaderboard:</strong> As the admin updates official scores, the leaderboard recalculates everyone's scores instantly.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- SUBMIT MODAL -->
+  <div class="modal" id="submit-modal">
+    <div class="modal-content glass-panel">
+      <h3>Submit Prediction Bracket</h3>
+      <p>Enter a nickname to save your bracket and add yourself to the leaderboard.</p>
+      
+      <div class="form-group">
+        <label for="input-nickname">Your Nickname</label>
+        <input type="text" id="input-nickname" placeholder="e.g. GoalMachine99" maxlength="25">
+        <span class="input-hint">Only letters, numbers, spaces, underscores, and hyphens (max 25 characters).</span>
+      </div>
+
+      <div id="submit-error" class="error-msg hidden"></div>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeSubmitModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="submitBracket()">Save & Submit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHARE LINK MODAL -->
+  <div class="modal" id="share-modal">
+    <div class="modal-content glass-panel">
+      <div class="success-icon">🎉</div>
+      <h3>Bracket Saved Successfully!</h3>
+      <p>Your bracket has been saved. Copy the link below to share your predictions with friends!</p>
+      
+      <div class="share-box">
+        <input type="text" id="share-link-input" readonly>
+        <button class="btn btn-primary" onclick="copyShareLink()">Copy Link</button>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeShareModal()">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2026 FIFA World Cup Bracket Challenge. Unofficial companion app.</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/app.js"></script>
+</body>
+</html>
