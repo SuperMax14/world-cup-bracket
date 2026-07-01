@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+const { MongoClient } = require('mongodb');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -11,26 +12,126 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Helper to read database
-function readDB() {
+let dbClient = null;
+let mongoDb = null;
+let dbCache = null; // Sync memory cache
+const MONGO_URI = process.env.MONGODB_URI;
+
+// Load database (either from MongoDB or local database.json)
+async function initDatabase() {
+  if (MONGO_URI) {
+    console.log('Connecting to MongoDB Atlas...');
+    try {
+      dbClient = await MongoClient.connect(MONGO_URI);
+      mongoDb = dbClient.db();
+      console.log('Connected to MongoDB Atlas successfully.');
+      
+      const collection = mongoDb.collection('bracket_data');
+      let data = await collection.findOne({ _id: 'main_data' });
+      if (!data) {
+        console.log('No existing data in MongoDB. Initializing with local database.json...');
+        const fileData = readLocalFile();
+        data = { _id: 'main_data', ...fileData };
+        await collection.insertOne(data);
+      }
+      dbCache = data;
+      console.log('Database initialized from MongoDB.');
+    } catch (error) {
+      console.error('Failed to connect/initialize MongoDB database. Falling back to local file:', error);
+      dbCache = readLocalFile();
+    }
+  } else {
+    console.log('No MONGODB_URI environment variable detected. Running in LOCAL FILE MODE.');
+    dbCache = readLocalFile();
+  }
+}
+
+function readLocalFile() {
   try {
     const data = fs.readFileSync(DB_PATH, 'utf8');
     return JSON.parse(data);
   } catch (error) {
-    console.error('Error reading database:', error);
-    return { settings: { adminPassword: 'admin', pointsSystem: {} }, officialResults: {}, users: [] };
+    console.error('Error reading local database.json:', error);
+    return {
+      settings: {
+        adminPassword: "90367058node",
+        pointsSystem: {
+          r32: 10,
+          r16: 20,
+          qf: 40,
+          sf: 80,
+          third: 50,
+          final: 160
+        }
+      },
+      officialResults: {
+        "73": { "winner": "Canada", "score": "Canada won (June 28)" },
+        "74": { "winner": "Paraguay", "score": "Paraguay won (pens, June 29)" },
+        "75": { "winner": null, "score": "" },
+        "76": { "winner": "Brazil", "score": "2-1 (June 29)" },
+        "77": { "winner": null, "score": "" },
+        "78": { "winner": null, "score": "" },
+        "79": { "winner": null, "score": "" },
+        "80": { "winner": null, "score": "" },
+        "81": { "winner": null, "score": "" },
+        "82": { "winner": null, "score": "" },
+        "83": { "winner": null, "score": "" },
+        "84": { "winner": null, "score": "" },
+        "85": { "winner": null, "score": "" },
+        "86": { "winner": null, "score": "" },
+        "87": { "winner": null, "score": "" },
+        "88": { "winner": null, "score": "" },
+        "89": { "winner": null, "score": "" },
+        "90": { "winner": null, "score": "" },
+        "91": { "winner": null, "score": "" },
+        "92": { "winner": null, "score": "" },
+        "93": { "winner": null, "score": "" },
+        "94": { "winner": null, "score": "" },
+        "95": { "winner": null, "score": "" },
+        "96": { "winner": null, "score": "" },
+        "97": { "winner": null, "score": "" },
+        "98": { "winner": null, "score": "" },
+        "99": { "winner": null, "score": "" },
+        "100": { "winner": null, "score": "" },
+        "101": { "winner": null, "score": "" },
+        "102": { "winner": null, "score": "" },
+        "103": { "winner": null, "score": "" },
+        "104": { "winner": null, "score": "" }
+      },
+      "users": []
+    };
   }
+}
+
+// Helper to read database from cache
+function readDB() {
+  return dbCache;
 }
 
 // Helper to write database
 function writeDB(data) {
-  try {
-    fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), 'utf8');
-    return true;
-  } catch (error) {
-    console.error('Error writing database:', error);
-    return false;
+  dbCache = data;
+  
+  if (mongoDb) {
+    mongoDb.collection('bracket_data')
+      .updateOne({ _id: 'main_data' }, { $set: data }, { upsert: true })
+      .then(() => {
+        console.log('MongoDB database updated successfully.');
+      })
+      .catch(err => {
+        console.error('Error writing to MongoDB:', err);
+      });
+  } else {
+    try {
+      fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), 'utf8');
+      console.log('Local database.json file updated.');
+      return true;
+    } catch (error) {
+      console.error('Error writing to local database file:', error);
+      return false;
+    }
   }
+  return true;
 }
 
 // Recalculate score for a single user predictions set
@@ -234,6 +335,10 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`World Cup Bracket app running on http://localhost:${PORT}`);
-});
+async function startServer() {
+  await initDatabase();
+  app.listen(PORT, () => {
+    console.log(`World Cup Bracket app running on http://localhost:${PORT}`);
+  });
+}
+startServer();
